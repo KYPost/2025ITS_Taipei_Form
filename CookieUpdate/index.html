@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        //#region - USER DATA -
+        var UserStatus={
+            Form: 0,
+            Quiz: 1,
+            Exchange: 2
+        }
+        var UserData = {
+            status: UserStatus.Form,
+            isExchanged: false,
+        }
+        //#endregion
+
+        var DayToLive = 3;
+        var WebsiteURL = "https://kypost.github.io/2025ITS_Taipei_Form/";
+        
+        var data = UserData;
+        // Get Cookie
+        var decodedCookie = decodeURIComponent(document.cookie);
+        console.log("Cookie => " + decodedCookie);        
+        var cookies = decodedCookie.split('; ');
+        for (var i = 0; i < cookies.length; i++){
+            // 將索引與值分開
+            var cookie = cookies[i].split("=");
+            // 如果索引 = UserData，且值不為空
+            if (cookie[0] = "UserData" && cookie[1] != null) {
+                // Json 解析
+                var cookieData = JSON.parse(cookie[1]);
+                
+                // 將cookie值載入data
+                data.status = cookieData.status;
+                data.isExchanged = cookieData.isExchanged;
+            }
+        }
+
+        // Update Cookie
+        if(data.status == UserStatus.Exchange)
+        {
+            var url = document.URL;
+            if(url.indexOf("?") != -1){
+                var decodedParameter = url.split("?")[1];
+                var parameter = decodedParameter.split("=");
+                if(parameter[0] == "key" && parameter[1] == "prize"){
+                    data.isExchanged = true;
+                }
+            }
+        }
+        var dataStr = JSON.stringify(data);
+        console.log("updated cookie => " + dataStr);
+
+        // Set Cookie
+        var cookie = "UserData=" + dataStr;
+        var date = new Date();
+        date.setTime(date.getTime() + (DayToLive * 24 * 60 * 60 * 1000));
+        var expires = "expires=" + date.toUTCString();
+        document.cookie = cookie + "; " + expires + "; path=/";
+
+        // 前往活動網頁
+        window.location.replace(WebsiteURL);  
+    </script>
+</body>
+</html>
